@@ -1371,7 +1371,13 @@ mod test {
         unsafe { sys::cef_string_utf16_clear(&mut utf16) };
 
         let mut wide: sys::_cef_string_wide_t = CefStringWide::from("baz").into();
-        assert_eq!(CefStringWide::from(&raw const wide).to_string(), "baz");
+        assert!(!wide.str_.is_null());
+        assert_eq!(wide.length, 3);
+        let expected: Vec<sys::wchar_t> = "baz".bytes().map(sys::wchar_t::from).collect();
+        assert_eq!(
+            unsafe { std::slice::from_raw_parts(wide.str_, wide.length) },
+            expected.as_slice()
+        );
         unsafe { sys::cef_string_wide_clear(&mut wide) };
     }
 
